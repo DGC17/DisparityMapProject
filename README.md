@@ -2,6 +2,11 @@
 
 Implementation of a Disparity Map Algorithm in Visual Studio 2013, using C + OpenCL
 
+## Authors
+
+David Garcia Centelles (David.GarciaC@e-campus.uab.cat)
+Mario Measic-Gavran (Mario.MeasicGavran@e-campus.uab.cat)
+
 ### Requirements
 
 - A GPU compatible with CUDA (We used an Nvidia)
