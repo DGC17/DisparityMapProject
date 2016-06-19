@@ -5,6 +5,7 @@ Implementation of a Disparity Map Algorithm in Visual Studio 2013, using C + Ope
 ## Authors
 
 David Garcia Centelles (David.GarciaC@e-campus.uab.cat)
+
 Mario Measic-Gavran (Mario.MeasicGavran@e-campus.uab.cat)
 
 ### Requirements
