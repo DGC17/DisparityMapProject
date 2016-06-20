@@ -9,18 +9,14 @@ __kernel void matchingCostComputation(__global rgb* img1, __global rgb* img2, __
 {
 	int gid = get_global_id(0);
 	int gid2 = get_global_id(1);
-	
-	int gid_pos[8] =  {0,  0, 1,  1, 1, -1, -1, -1};
-	int gid2_pos[8] = {1, -1, 1, -1, 0,  1, -1,  0};
-	
-		int count = 1;
-		int c = ((	abs(img1[gid+w*gid2].r - img2[i+w*gid2].r) + 
-				abs(img1[gid+w*gid2].g - img2[i+w*gid2].g) + 
-				abs(img1[gid+w*gid2].b - img2[i+w*gid2].b) ) / 3);
-		
-		int x; for (x = 0; x < 8; x++) {
-			int iterator = ((gid + gid_pos[x]) + w*(gid2 + gid2_pos[x]));
-			int iterator2 = ((i + gid_pos[x]) + w*(gid2 + gid2_pos[x]));
+	int window_range = 3; 
+	int count = 0;
+	int c = 0;
+
+	int gid1_pos; for (gid1_pos = (1 - window_range); gid1_pos < window_range; gid1_pos++) {
+		int gid2_pos; for (gid2_pos = (1 - window_range); gid2_pos < window_range; gid2_pos++) {
+			int iterator = ((gid + gid1_pos) + w*(gid2 + gid2_pos));
+			int iterator2 = ((i + gid1_pos) + w*(gid2 + gid2_pos));
 			if ((iterator >= 0) && (iterator < w*h) && (iterator2 >= 0) && (iterator2 < w*h)) {
 				c += ((	abs(img1[iterator].r - img2[iterator2].r) + 
 						abs(img1[iterator].g - img2[iterator2].g) + 
@@ -28,9 +24,10 @@ __kernel void matchingCostComputation(__global rgb* img1, __global rgb* img2, __
 				count++;
 			}
 		}
-
-		output_costs[w*gid + w*w*gid2 + i] = c/count;
-		output_disparities[w*gid + w*w*gid2 + i] = abs(gid - i);
+	}
+		
+	output_costs[w*gid + w*w*gid2 + i] = c/count;
+	output_disparities[w*gid + w*w*gid2 + i] = abs(gid - i);
 }
 
 
@@ -38,21 +35,20 @@ __kernel void costAggregation(__global int*input, __global int*output, int w, in
 {
 	int gid = get_global_id(0);
 	int gid2 = get_global_id(1);
+	int window_range = 3; 
+	int count = 0;
+	int final_value = 0;
 
-	int gid_pos[8] =  {0,  0, 1,  1, 1, -1, -1, -1};
-	int gid2_pos[8] = {1, -1, 1, -1, 0,  1, -1,  0};
-	
-	int final_value = input[gid*w + w*w*gid2 + i];
-	int count = 1;
-		
-	int x; for (x = 0; x < 8; x++) { 
-		int iterator = ((gid + gid_pos[x])*w + w*w*(gid2 + gid2_pos[x]) + i);
-		if ((iterator >= 0) && (iterator < w*h*w)) {
-			final_value += input[iterator];
-			count++;
+	int gid1_pos; for (gid1_pos = (1 - window_range); gid1_pos < window_range; gid1_pos++) {
+		int gid2_pos; for (gid2_pos = (1 - window_range); gid2_pos < window_range; gid2_pos++) {
+			int iterator = ((gid + gid1_pos)*w + w*w*(gid2 + gid2_pos) + i);
+			if ((iterator >= 0) && (iterator < w*h*w)) {
+				final_value += input[iterator];
+				count++;
+			}
 		}
 	}
-		
+	
 	output[w*gid + w*w*gid2 + i] = final_value/count;
 }
 
@@ -80,20 +76,19 @@ __kernel void disparityRefinement(__global int*input, __global int*output, int w
 {
 	int gid = get_global_id(0);
 	int gid2 = get_global_id(1);
+	int window_range = 2; 
+	int count = 0;
+	int final_value = 0;
 
-	int gid_pos[8] =  {0,  0, 1,  1, 1, -1, -1, -1};
-	int gid2_pos[8] = {1, -1, 1, -1, 0,  1, -1,  0};
-	
-	int final_value = input[gid + w*gid2];
-	int count = 1;
-	
-	int x; for (x = 0; x < 8; x++) { 
-		int iterator = ((gid + gid_pos[x]) + w*(gid2 + gid2_pos[x]));
-		if ((iterator >= 0) && (iterator < w*h)) {
-			final_value += input[iterator];
-			count++;
+	int gid1_pos; for (gid1_pos = (1 - window_range); gid1_pos < window_range; gid1_pos++) {
+		int gid2_pos; for (gid2_pos = (1 - window_range); gid2_pos < window_range; gid2_pos++) {
+			int iterator = ((gid + gid1_pos) + w*(gid2 + gid2_pos));
+			if ((iterator >= 0) && (iterator < w*h)) {
+				final_value += input[iterator];
+				count++;
+			}
 		}
 	}
-		
+	
 	output[gid + w*gid2] = final_value/count;
 }

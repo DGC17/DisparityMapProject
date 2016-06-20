@@ -49,10 +49,12 @@ void main()
 	char *source_str;
 
 	//INTIALIZATION OF THE IMAGES... 
-	//CImg<unsigned char> image1("./img/teddy/im2.ppm");
-	//CImg<unsigned char> image2("./img/teddy/im6.ppm");
-	CImg<unsigned char> image1("./img/cones/im2.ppm");
-	CImg<unsigned char> image2("./img/cones/im6.ppm");
+	CImg<unsigned char> image1("./img/teddy/im2.ppm");
+	CImg<unsigned char> image2("./img/teddy/im6.ppm");
+	CImg<unsigned char> groundtruth("./img/teddy/disp2.pgm");
+	//CImg<unsigned char> image1("./img/cones/im2.ppm");
+	//CImg<unsigned char> image2("./img/cones/im6.ppm");
+	//CImg<unsigned char> groundtruth("./img/cones/disp2.pgm");
 	CImg<unsigned char> result = image1.get_RGBtoYCbCr().get_channel(0).fill(0);
 	
 	CImgDisplay main_disp(image1, "Image 1");
@@ -212,17 +214,18 @@ void main()
 
 	/* Display result */
 	cimg_forXY(image1, x, y) {
-		/*
-		int classified_value = 0;
-		int output_value = refinedoutput[x + y*w];
-		int i;
-		for (i = 10; i < w; i = i + 10) if (output_value >= i) classified_value += 20;
-		result(x, y) = (unsigned char)classified_value;
-		*/
+		
+		//int classified_value = 0;
+		//int output_value = refinedoutput[x + y*w];
+		//int i;
+		//for (i = 10; i < w; i = i + 10) if (output_value >= i) classified_value += 20;
+		//result(x, y) = (unsigned char)classified_value;
+		
 		result(x, y) = (unsigned char)refinedoutput[x + y*w];
 	}
 
 	CImgDisplay main_disp3(result, "Result");
+	CImgDisplay main_disp4(groundtruth, "Ground Truth");
 	
 	printf("Computation finished! \nPress any key to finish...");
 	getchar();
